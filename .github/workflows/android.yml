@@ -1,6 +1,7 @@
 # Builds the Sketch2Banner APK on GitHub's servers (the venue network is too slow to install the Android SDK).
 # Download: Actions tab -> latest run -> Artifacts -> sketch2banner-apk.
 name: android-apk
+run-name: Build APK (${{ github.sha }})
 on:
   push:
     paths: ["android/**", ".github/workflows/android.yml"]
