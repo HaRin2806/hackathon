@@ -1,0 +1,30 @@
+# Builds the Sketch2Banner APK on GitHub's servers (the venue network is too slow to install the Android SDK).
+# Download: Actions tab -> latest run -> Artifacts -> sketch2banner-apk.
+name: android-apk
+on:
+  push:
+    paths: ["android/**", ".github/workflows/android.yml"]
+  workflow_dispatch: {}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+      - name: Build debug APK
+        working-directory: android
+        env:
+          # Default server baked into the APK; can still be changed in-app via the "Server" button.
+          S2B_BASE_URL: ${{ vars.S2B_BASE_URL || 'http://192.168.3.198:8000' }}
+        run: gradle assembleDebug --no-daemon --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sketch2banner-apk
+          path: android/app/build/outputs/apk/debug/*.apk

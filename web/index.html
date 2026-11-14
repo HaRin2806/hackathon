@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4F5BD5">
+  <title>Sketch2Banner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">S2B</div>
+      <div>
+        <h1>Sketch2Banner</h1>
+        <p>Phác thảo tay + ảnh thật → 3 banner quảng cáo</p>
+      </div>
+    </div>
+    <span id="health" class="chip">Đang kiểm tra server…</span>
+  </header>
+
+  <main>
+    <div id="fixtureWarn" class="banner danger" hidden>
+      Server đang ở chế độ <b>FIXTURE</b> (AI_PROVIDER=mock): kết quả là bố cục mẫu, <b>không phải AI</b>. Cấu hình AI_API_KEY trước khi demo.
+    </div>
+
+    <!-- STEP 1: images -->
+    <section class="card">
+      <h2><span class="step">1</span> Hai ảnh đầu vào</h2>
+      <div class="drops">
+        <label class="drop" id="dropSketch">
+          <input type="file" accept="image/*" id="fileSketch" hidden>
+          <img alt="" hidden>
+          <div class="ph">
+            <b>Ảnh phác thảo</b>
+            <small>Vẽ ô và ghi nhãn: <code>TIÊU ĐỀ</code> <code>SP</code> <code>GIÁ</code> <code>CTA</code></small>
+          </div>
+          <span class="tag">Phác thảo</span>
+        </label>
+        <label class="drop" id="dropProduct">
+          <input type="file" accept="image/*" id="fileProduct" hidden>
+          <img alt="" hidden>
+          <div class="ph">
+            <b>Ảnh sản phẩm thật</b>
+            <small>Nền đơn giản, đủ sáng; ảnh được giữ nguyên, không vẽ lại</small>
+          </div>
+          <span class="tag">Sản phẩm</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- STEP 2: brief -->
+    <section class="card">
+      <h2><span class="step">2</span> Nội dung bán hàng</h2>
+      <p class="hint">Giá, ưu đãi và CTA do bạn xác nhận; AI không tự đoán hay sửa các nội dung này.</p>
+      <form id="briefForm" class="grid" autocomplete="off">
+        <label>Tên sản phẩm *<input name="product_name" maxlength="60" required placeholder="Trà sữa trân châu đường đen"></label>
+        <label>Tiêu đề <span class="muted">(để trống = AI gợi ý)</span><input name="headline" maxlength="80" placeholder="Mát lạnh ngày hè"></label>
+        <label>Giá / ưu đãi<input name="price" maxlength="40" placeholder="39.000đ"></label>
+        <label>Lời kêu gọi (CTA) *<input name="cta" maxlength="40" required placeholder="Đặt ngay hôm nay"></label>
+      </form>
+
+      <details id="historyBox" class="history">
+        <summary>🇻🇳 Gắn dịp lịch sử <span class="muted">(tuỳ chọn — “Ngày này năm xưa”)</span></summary>
+        <div class="hrow">
+          <input id="histQ" placeholder="Tìm: Điện Biên Phủ, 1010, ASEAN…">
+          <button type="button" class="ghost" id="histToday">Hôm nay</button>
+        </div>
+        <div id="histSelected" class="selected" hidden></div>
+        <ul id="histList" class="hlist"></ul>
+        <p class="hint">Nguồn: bộ sự kiện chọn lọc + dataset <i>Vietnam-History-1M-Vi</i> (MIT). Mục “chưa kiểm chứng” cần đối chiếu trước khi đăng.</p>
+      </details>
+    </section>
+
+    <!-- STEP 3: generate -->
+    <section class="card">
+      <h2><span class="step">3</span> Tạo bằng AI</h2>
+      <button id="btnGenerate" class="primary" disabled>Tạo 3 phương án</button>
+      <p class="hint" id="genHint">Cần Internet. Chọn đủ 2 ảnh, tên sản phẩm và CTA.</p>
+
+      <div id="progress" class="progress" hidden>
+        <ol class="stages">
+          <li data-s="QUEUED">Tải lên</li>
+          <li data-s="ANALYZING">AI đọc phác thảo</li>
+          <li data-s="VALIDATING">Kiểm tra bố cục</li>
+          <li data-s="RENDERING">Dựng 3 ảnh</li>
+        </ol>
+        <p class="meta"><span id="elapsed">0</span>s · job <code id="jobShort">—</code></p>
+      </div>
+      <div id="error" class="banner danger" hidden></div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card" id="results" hidden>
+      <h2>Kết quả <span id="resultTag" class="chip"></span></h2>
+      <div id="reading" class="reading"></div>
+      <div id="suggestedWarn" class="banner caution" hidden>
+        AI chưa đọc rõ phác thảo — đây là <b>bố cục gợi ý</b>, không phải bố cục bạn vẽ. Thử chụp lại rõ hơn và ghi nhãn từng ô.
+      </div>
+      <div class="variants" id="variants"></div>
+      <p class="meta" id="resultMeta"></p>
+      <details class="tech"><summary>Chi tiết kỹ thuật (cho BGK)</summary><pre id="techJson"></pre></details>
+    </section>
+
+    <section class="card" id="recentBox" hidden>
+      <h2>Lượt gần đây <span class="muted">(kết quả cũ)</span></h2>
+      <ul id="recent" class="recent"></ul>
+    </section>
+  </main>
+
+  <dialog id="viewer">
+    <img id="viewerImg" alt="Banner kích thước đầy đủ">
+    <div class="vbar">
+      <span id="viewerLabel"></span>
+      <div>
+        <button class="ghost" id="viewerShare">Chia sẻ</button>
+        <a class="primary small" id="viewerDownload" download>Tải PNG</a>
+        <button class="ghost" id="viewerClose">Đóng</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

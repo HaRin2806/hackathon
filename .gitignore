@@ -1,0 +1,13 @@
+backend/.env
+backend/data/jobs/
+backend/evidence/
+__pycache__/
+*.pyc
+.venv/
+_preview/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
